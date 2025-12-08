@@ -1,4 +1,4 @@
-<img width="796" height="597" alt="Screenshot 2025-12-09 003934" src="https://github.com/user-attachments/assets/b9622fee-4eb0-4bc4-a2d4-ef9ae6f5729c" /># happycat3D-opengl
+# happycat3D-opengl
 
 Happy Cat is a short 3D platformer game about a muscular little cat who dreams of proving himself.
 As part of his training, he must overcome a series of challenging obstacles crafted by third-year engineering students.

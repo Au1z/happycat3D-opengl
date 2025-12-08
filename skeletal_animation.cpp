@@ -38,10 +38,10 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 glm::vec3 modelPosition(0.0f, 5.0f, 0.0f);
-float modelYaw = 0.0f; // หมุนโมเดลเอง (เวลาหัน)
-float orbitYaw = 0.0f;   // มุมกล้องรอบโมเดล (แนวนอน)
-float orbitPitch = 20.0f; // มุมกล้องขึ้น/ลง
-float cameraDistance = 4.0f; // ระยะกล้องจากโมเดล
+float modelYaw = 0.0f;
+float orbitYaw = 0.0f;
+float orbitPitch = 20.0f;
+float cameraDistance = 4.0f;
 
 bool isWalking = false;
 
@@ -49,19 +49,19 @@ bool hasJump = false;
 bool onGround = false;
 float jumpVelocity = 0.0f;
 float gravity = -9.8f;
-float jumpStrength = 7.5f;   // ความแรงการกระโดด (ปรับได้)
-float groundHeight = 0.7f;   // พื้นอยู่ที่ y = 0
+float jumpStrength = 7.5f;
+float groundHeight = 0.7f;
 
 bool punching = false;
 float punchingDuration = 0;
 
-bool animationLocked = false;     // ห้ามเปลี่ยน animation ถ้ายังเล่นไม่จบ
-float currentAnimTime = 0.0f;     // เวลา animation ปัจจุบัน
-float currentAnimDuration = 0.0f; // ระยะเวลา animation ปัจจุบัน
+bool animationLocked = false;
+float currentAnimTime = 0.0f;
+float currentAnimDuration = 0.0f;
 
-bool isJumpLoop = true;   // jump ไม่ loop
-bool isWalkLoop = true;    // walk loop
-bool isStandLoop = true;   // stand loop
+bool isJumpLoop = true;
+bool isWalkLoop = true;
+bool isStandLoop = true;
 bool isPunchLoop = true;
 
 float jumpAnimSpeed = 0.95f;
@@ -87,12 +87,12 @@ bool CheckMapCollision(const glm::vec3& pos, float radius, const Model& mapModel
 			glm::vec3 closest;
 			if (TestSphereTriangle(pos, radius, a, b, c, closest))
 			{
-				return true;  // ชน map
+				return true;
 			}
 		}
 	}
 
-	return false; // ไม่ชน
+	return false;
 }
 
 float ResolveVerticalCollision(glm::vec3& pos, float radius, const Model& mapModel, float currentVelocityY)
@@ -115,10 +115,8 @@ float ResolveVerticalCollision(glm::vec3& pos, float radius, const Model& mapMod
 
 			if (TestSphereTriangle(pos, radius, a, b, c, closest))
 			{
-				// ตรวจว่าชนด้านบนหรือด้านล่าง
 				if (closest.y < pos.y)
 				{
-					// triangle อยู่ใต้ player → อาจเป็นพื้น
 					if (closest.y > floorY)
 					{
 						floorY = closest.y;
@@ -338,7 +336,7 @@ int main()
 		jumpVelocity = ResolveVerticalCollision(modelPosition, 0.7f, mapModel, jumpVelocity);
 
 		// ===== Respawn if player falls off map =====
-		if (modelPosition.y < -50.0f)   // ตกลึกเกิน -50
+		if (modelPosition.y < -50.0f)
 		{
 			Respawn();
 		}
@@ -362,7 +360,7 @@ int main()
 		// input
 		// -----
 		processInput(window);
-		// เลือก animation ตามสถานะ
+		
 		Animation* desiredAnim = nullptr;
 
 		if (punching) {
@@ -377,15 +375,13 @@ int main()
 		else
 			desiredAnim = &standAnimation;
 
-		// สั่งเปลี่ยน animation เฉพาะตอนที่ไม่ถูกล็อก
 		if (!animationLocked && animator.GetCurrentAnimation() != desiredAnim)
 		{
 			animator.PlayAnimation(desiredAnim);
 
-			animationLocked = false; // loop animation ไม่ล็อก
+			animationLocked = false;
 		}
 
-		// เลือก animation เฉพาะตอนที่ไม่ถูกล็อก
 		Animation* currentAnim;
 		currentAnim = desiredAnim;
 
@@ -396,20 +392,18 @@ int main()
 
 		float animDelta = deltaTime;
 
-		// ถ้ากำลังกระโดด → เร่ง animation
 		if (!hasJump)
 			animDelta *= jumpAnimSpeed;
 
 		animator.UpdateAnimation(animDelta);
 
-		// ====== ตรวจว่า animation non-loop เล่นครบหรือยัง ======
 		if (animationLocked)
 		{
 			currentAnimTime += deltaTime;
 
 			if (currentAnimTime >= currentAnimDuration)
 			{
-				animationLocked = false; // ปลดล็อก
+				animationLocked = false;
 			}
 		}
 
@@ -422,7 +416,6 @@ int main()
 		ourShader.use();
 
 
-		// คำนวณตำแหน่งกล้องตามมุม orbit
 		float yawRad = glm::radians(orbitYaw);
 		float pitchRad = glm::radians(orbitPitch);
 
@@ -431,11 +424,9 @@ int main()
 		cameraOffset.y = cameraDistance * sin(pitchRad);
 		cameraOffset.z = -cameraDistance * cos(pitchRad) * cos(yawRad);
 
-		// ตำแหน่งกล้อง
 		camera.Position = modelPosition + cameraOffset;
 
-		// กล้องหันไปที่หัวโมเดลแทนพื้น
-		glm::vec3 headOffset(0.0f, 0.8f, 0.0f);   // ปรับความสูงตามต้องการ
+		glm::vec3 headOffset(0.0f, 0.8f, 0.0f);
 		glm::vec3 target = modelPosition + headOffset;
 
 		camera.Front = glm::normalize(target - camera.Position);
@@ -454,7 +445,7 @@ int main()
 		for (int i = 0; i < transforms.size(); ++i)
 			ourShader.setMat4("finalBonesMatrices[" + std::to_string(i) + "]", transforms[i]);
 
-		modelYaw = -orbitYaw; // ทำให้โมเดลหันหน้าหากล้อง
+		modelYaw = -orbitYaw;
 
 		// render the loaded model
 		glm::mat4 model = glm::mat4(1.0f);
@@ -487,8 +478,8 @@ int main()
 		skyShader.setMat4("uProjection", projection);
 		skyShader.setMat4("uView", glm::mat4(glm::mat3(view)));
 		glm::mat4 skyModel = glm::mat4(1.0f);
-		skyModel = glm::rotate(skyModel, glm::radians(90.0f), glm::vec3(1, 0, 0)); // rotate sky 90° around Y
-		skyModel = glm::scale(skyModel, glm::vec3(2000.f));                         // scale outward
+		skyModel = glm::rotate(skyModel, glm::radians(90.0f), glm::vec3(1, 0, 0));
+		skyModel = glm::scale(skyModel, glm::vec3(2000.f));
 		skyShader.setMat4("uModel", skyModel);
 
 		glBindVertexArray(skyboxVAO);
@@ -519,7 +510,6 @@ void processInput(GLFWwindow* window)
 
 	float moveSpeed = 4.0f * deltaTime;
 
-	// ทิศทางที่โมเดลหัน (จาก modelYaw)
 	glm::vec3 forward(
 		sin(glm::radians(modelYaw)),
 		0.0f,
@@ -535,7 +525,6 @@ void processInput(GLFWwindow* window)
 
 			float radius = 0.5f;
 
-			// ถ้าชน → ห้ามขยับ
 			if (!CheckMapCollision(attempt, radius, *gMapModel))
 			{
 				modelPosition = attempt;
@@ -569,38 +558,27 @@ void processInput(GLFWwindow* window)
 	}
 
 
-	// ถ้าไม่มีปุ่ม WASD กด
 	if (!anyKeyPressed)
 	{
 		isWalking = false;
 	}
 
-	// ปุ่มกระโดด
 	int spaceState = glfwGetKey(window, GLFW_KEY_SPACE);
 
-	// ถ้าเพิ่งกด Space ลงครั้งแรก
 	bool spacePressedNow = (spaceState == GLFW_PRESS && !jumpKeyPressed);
 
-	// อัปเดตสถานะกดค้าง
 	jumpKeyPressed = (spaceState == GLFW_PRESS);
-
-	// กระโดดเฉพาะเงื่อนไข:
-	// 1) เพิ่งกด Space
-	// 2) canJump == true (ผ่าน cooldown แล้ว)
-	// 3) isJumping == false (อยู่พื้นเท่านั้น) --> ไร้สาระ
+	
 	if (spacePressedNow && hasJump)
 	{
 		hasJump = false;
 		jumpVelocity = jumpStrength;
 	}
 
-	//Punchy
 	int punchState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
-	// ถ้าเพิ่งกด Space ลงครั้งแรก
 	bool punchPressedNow = (punchState == GLFW_PRESS && !punchKeyPressed);
 
-	// อัปเดตสถานะกดค้าง
 	punchKeyPressed = (punchState == GLFW_PRESS);
 
 	if (punchPressedNow && punchingDuration <= 0)
@@ -636,7 +614,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	}
 
 	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // ย้อนเพราะแกน Y ของจอคอมกลับด้าน
+	float yoffset = lastY - ypos;
 	lastX = xpos;
 	lastY = ypos;
 
@@ -647,7 +625,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	orbitYaw += xoffset;
 	orbitPitch += yoffset;
 
-	// จำกัดมุมกล้องไม่ให้หมุนเกินหัว/ล่างสุด
 	if (orbitPitch > 89.0f)
 		orbitPitch = 89.0f;
 	if (orbitPitch < -45.0f)
